@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.chroma_lab3/
+data/corpus_scaled/
 # C extensions
 *.so
 

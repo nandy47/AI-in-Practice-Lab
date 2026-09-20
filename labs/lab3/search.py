@@ -18,6 +18,8 @@ import sys
 import time
 from collections import defaultdict
 from pathlib import Path
+import re
+
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -28,6 +30,22 @@ from aip.retrieval import Bm25Retriever, DenseRetriever, HybridRetriever, Retrie
 
 CORPUS_DIR = ROOT / "data/corpus"
 GOLDEN = ROOT / "data/eval/rag_golden.jsonl"
+REPORT_PATH = ROOT / "reports/lab3_sweeps.json"
+
+def save_results(section: str, data: dict) -> None:
+    """Merge `data` into reports/lab3_sweeps.json under `section`.
+
+    Read-merge-write, because each --sweep invocation is a separate process --
+    this lets baseline/chunking/retrieval/rerank/index all land in one file
+    across however many runs it takes.
+    """
+    REPORT_PATH.parent.mkdir(exist_ok=True)
+    existing = {}
+    if REPORT_PATH.exists():
+        existing = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+    existing[section] = data
+    REPORT_PATH.write_text(json.dumps(existing, indent=2, default=str), encoding="utf-8")
+    print(f"\nSaved to {REPORT_PATH.relative_to(ROOT)}")
 
 
 # ---------------------------------------------------------------------------
@@ -149,7 +167,7 @@ def sweep_baseline() -> None:
     print()
     print(kind_table(m))
     print("\nWrite these numbers down before you change anything.")
-
+    save_results("baseline", {"baseline sliding-800 dense": m})
 
 def sweep_chunking() -> None:
     """TODO A1-A3.
@@ -163,7 +181,83 @@ def sweep_chunking() -> None:
     Report chunk count and index build time alongside quality. A configuration
     that is 1 point better and takes 4x as long to build is a real trade-off.
     """
-    raise NotImplementedError
+    corpus, questions = load_corpus(), load_questions()
+    rows: dict[str, dict] = {}
+    counts: dict[str, tuple[int, float]] = {}
+
+    for strat in STRATEGIES:
+        chunks = build_chunks(corpus, strat, 800)
+        t0 = time.perf_counter()
+        r = DenseRetriever(chunks, show_progress=False)
+        build_s = time.perf_counter() - t0
+        name = f"{strat}-800"
+        rows[name] = evaluate(r, questions)
+        counts[name] = (len(chunks), build_s)
+
+    for size in (100,200,400, 800, 1600):
+        chunks = build_chunks(corpus, "markdown", size)
+        t0 = time.perf_counter()
+        r = DenseRetriever(chunks, show_progress=False)
+        build_s = time.perf_counter() - t0
+        name = f"markdown-{size}"
+        rows[name] = evaluate(r, questions)
+        counts[name] = (len(chunks), build_s)
+    
+    PREFIX_RE = re.compile(r"^\[.*?\]\n")
+    with_prefix = build_chunks(corpus, "markdown", 400)
+    without_prefix = [
+        Chunk(PREFIX_RE.sub("", c.text, count=1), c.doc_id, c.chunk_id, c.meta)
+        for c in with_prefix
+    ]
+    for name, chunks in (("markdown-400-with-prefix", with_prefix),
+                          ("markdown-400-no-prefix", without_prefix)):
+        r = DenseRetriever(chunks, show_progress=False)
+        rows[name] = evaluate(r, questions)
+        counts[name] = (len(chunks), 0.0)    
+
+    print(table(rows))
+    print()
+    for name, (n, secs) in counts.items():
+        print(f"{name:<20} {n:>6} chunks   build {secs:>6.2f}s")        
+    save_results("chunking", rows)
+
+    print("\nA4: chunking failure diagnosis")
+    fixed_mrr = rows["fixed-800"]["_per_question_mrr"]
+    markdown_mrr = rows["markdown-400"]["_per_question_mrr"]
+    candidates = sorted(
+        ((qid, fixed_mrr[qid], markdown_mrr[qid])
+         for qid in fixed_mrr if qid in markdown_mrr),
+        key=lambda t: t[1] - t[2],
+    )
+    worst_qid, worst_fixed, worst_markdown = candidates[0]
+    q = next(q for q in questions if q["id"] == worst_qid)
+    print(f"Question {worst_qid}: {q['question']}")
+    print(f"  fixed-800 MRR: {worst_fixed:.3f}   markdown-400 MRR: {worst_markdown:.3f}")
+    print(f"  relevant_docs: {q['relevant_docs']}")
+
+    fixed_chunks_ = build_chunks(corpus, "fixed", 800)
+    fixed_retriever = DenseRetriever(fixed_chunks_, show_progress=False)
+    fixed_hits = fixed_retriever.search(q["question"], k=3)
+    print("\n  Top chunks retrieved by fixed-800 (what it found):")
+    for h in fixed_hits:
+        print(f"    [{h.doc_id}] {h.text[:200]!r}")
+
+    correct_chunks = [c for c in fixed_chunks_ if c.doc_id in q["relevant_docs"]]
+    print("\n  Chunk(s) from the correct document, fixed-800 (what should have matched):")
+    for c in correct_chunks[:2]:
+        print(f"    [{c.doc_id}] {c.text[:200]!r}")
+
+    save_results("chunking_a4", {
+        "question_id": worst_qid,
+        "question": q["question"],
+        "relevant_docs": q["relevant_docs"],
+        "fixed_800_mrr": worst_fixed,
+        "markdown_400_mrr": worst_markdown,
+        "fixed_800_top_hits": [{"doc_id": h.doc_id, "text": h.text} for h in fixed_hits],
+        "correct_chunks": [{"doc_id": c.doc_id, "text": c.text} for c in correct_chunks],
+    })
+
+    # raise NotImplementedError
 
 
 def sweep_retrieval() -> None:
@@ -181,7 +275,58 @@ def sweep_retrieval() -> None:
     B3: RRF k in {10, 30, 60, 100} -- HybridRetriever(..., rrf_k=k).
     B4: unequal fusion weights -- HybridRetriever(..., weights=[2.0, 1.0]).
     """
-    raise NotImplementedError
+    corpus, questions = load_corpus(), load_questions()
+    chunks = build_chunks(corpus, "markdown", 400)
+    print(f"chunking: markdown-400 -> {len(chunks)} chunks\n")
+
+    rows: dict[str, dict] = {}
+
+    dense = DenseRetriever(chunks, show_progress=False)
+    bm25 = Bm25Retriever(chunks)
+    hybrid = HybridRetriever([dense, bm25])
+
+    for name, r in (("dense", dense), ("bm25", bm25), ("hybrid", hybrid)):
+        rows[name] = evaluate(r, questions)
+
+    print(table(rows))
+
+    for name in ("dense", "bm25", "hybrid"):
+        print(f"\n{name}:")
+        print(kind_table(rows[name], col="mrr"))
+
+    print("\nQ44 (identifier) and Q41 (paraphrase) MRR by retriever:")
+    for qid in ("Q44", "Q41"):
+        print(f"  {qid}: " + "  ".join(
+            f"{name}={rows[name]['_per_question_mrr'].get(qid, float('nan')):.3f}"
+            for name in ("dense", "bm25", "hybrid")
+        ))
+
+    print("\nAll questions where BM25 beats dense (by MRR):")
+    diffs = sorted(
+        ((qid, rows["bm25"]["_per_question_mrr"][qid] - rows["dense"]["_per_question_mrr"][qid])
+         for qid in rows["bm25"]["_per_question_mrr"]),
+        key=lambda t: -t[1],
+    )
+    for qid, d in diffs:
+        if d > 0:
+            print(f"  {qid}: bm25={rows['bm25']['_per_question_mrr'][qid]:.3f}  "
+                  f"dense={rows['dense']['_per_question_mrr'][qid]:.3f}  (Δ={d:+.3f})")
+    
+    print("\nRRF k sweep:")
+    k_rows: dict[str, dict] = {}
+    for rrf_k in (10, 30, 60, 100):
+        h = HybridRetriever([dense, bm25], rrf_k=rrf_k)
+        k_rows[f"hybrid-k{rrf_k}"] = evaluate(h, questions)
+    print(table(k_rows))
+
+    print("\nUnequal fusion weights (dense weight, bm25 weight):")
+    w_rows: dict[str, dict] = {}
+    for w_dense, w_bm25 in ((1.0, 1.0), (2.0, 1.0), (3.0, 1.0), (1.0, 2.0)):
+        h = HybridRetriever([dense, bm25], weights=[w_dense, w_bm25])
+        w_rows[f"hybrid-{w_dense:.0f}:{w_bm25:.0f}"] = evaluate(h, questions)
+    print(table(w_rows)) 
+    save_results("retrieval", {"b1_b2": rows, "b3_rrf_k": k_rows, "b4_weights": w_rows})
+    #raise NotImplementedError
 
 
 def sweep_rerank() -> None:
@@ -197,7 +342,50 @@ def sweep_rerank() -> None:
     C4: find a query reranking made worse, using
         metrics['_per_question_mrr'] before and after.
     """
-    raise NotImplementedError
+    corpus, questions = load_corpus(), load_questions()
+    chunks = build_chunks(corpus, "markdown", 400)
+    dense = DenseRetriever(chunks, show_progress=False)
+
+    rows: dict[str, dict] = {}
+
+    rows["dense-k5"] = evaluate(dense, questions, k=5)
+
+    from aip.retrieval import CrossEncoderReranker
+    ce = CrossEncoderReranker()
+    rows["dense+crossencoder"] = evaluate(dense, questions, k=30, reranker=ce, final_k=5)
+
+    from aip.retrieval import LLMReranker
+    from aip import cost as cost_mod
+
+    llm_rr = LLMReranker(tier="SMALL")
+    llm_budget = cost_mod.Budget(limit_usd=5.0, label="c2-llm-rerank")
+    with llm_budget:
+        rows["dense+llmrerank"] = evaluate(dense, questions, k=30, reranker=llm_rr, final_k=5)
+    print(f"\n{llm_budget.report()}")
+
+    print(table(rows))
+    
+    llm_cost_per_1k = llm_budget.spent_usd / len(questions) * 1000
+    print("\nC3 decision table:")
+    for name in ("dense-k5", "dense+crossencoder", "dense+llmrerank"):
+        m = rows[name]
+        cost_str = f"${llm_cost_per_1k:.2f}/1k" if name == "dense+llmrerank" else "$0.00/1k"
+        print(f"  {name:<22} ndcg@5={m['ndcg@5']:.4f}  hit@1={m['hit_rate@1']:.4f}  "
+              f"p95={m['latency_p95_ms']:.1f}ms  {cost_str}")
+    
+    for reranked_name in ("dense+crossencoder", "dense+llmrerank"):
+        print(f"\nQueries where {reranked_name} hurt MRR (vs dense-k5):")
+        before = rows["dense-k5"]["_per_question_mrr"]
+        after = rows[reranked_name]["_per_question_mrr"]
+        diffs = sorted(
+            ((qid, after[qid] - before[qid]) for qid in before),
+            key=lambda t: t[1],
+        )
+        for qid, d in diffs[:5]:
+            if d < 0:
+                print(f"  {qid}: before={before[qid]:.3f}  after={after[qid]:.3f}  (Δ={d:+.3f})")
+    save_results("rerank", {**rows, "_llm_budget": llm_budget.as_dict()})
+    #raise NotImplementedError
 
 
 def sweep_index() -> None:
@@ -212,7 +400,90 @@ def sweep_index() -> None:
         Report hit_rate@1 on Q29/Q30/Q31 before and after (hit_rate@1, not
         @5 -- @5 is saturated here and will hide the whole effect).
     """
-    raise NotImplementedError
+    from aip.retrieval import ChromaRetriever
+
+    corpus, questions = load_corpus(), load_questions()
+    chunks = build_chunks(corpus, "markdown", 400)
+
+    dense = DenseRetriever(chunks, show_progress=False)
+    chroma = ChromaRetriever(chunks, path=".chroma_lab3", collection="real",
+                              reset=True)
+
+    rows: dict[str, dict] = {}
+    rows["dense-exact"] = evaluate(dense, questions)
+    rows["chroma-hnsw"] = evaluate(chroma, questions)
+
+    print(f"D1: real corpus, {len(chunks)} chunks")
+    print(table(rows))
+
+    scaled_dir = ROOT / "data/corpus_scaled"
+    d2_results = None
+    if not scaled_dir.exists():
+        print("\nD2 skipped: run `python scripts/expand_corpus.py --docs 4000` "
+              "first (~40k filler chunks, ballast only -- no golden answers).")
+    else:
+        filler_corpus = {p.stem: p.read_text(encoding="utf-8")
+                          for p in sorted(scaled_dir.glob("*.md"))}
+        filler_chunks = build_chunks(filler_corpus, "sliding", 800, overlap=150)
+        print(f"\nD2: {len(filler_corpus)} filler docs -> {len(filler_chunks)} filler chunks")
+
+        scales = {
+            "~real (no filler)": chunks,
+            "~4k chunks": chunks + filler_chunks[:4000],
+            f"~{len(filler_chunks)} chunks (all filler)": chunks + filler_chunks,
+        }
+
+        import statistics as _stats
+        import time as _time
+
+        d2_results = {} 
+        print(f"\n{'scale':<28}{'n_chunks':>10}{'exact_ms':>12}{'hnsw_ms':>12}")
+        for label, cset in scales.items():
+            d = DenseRetriever(cset, show_progress=False)
+            c = ChromaRetriever(cset, path=".chroma_lab3", collection=f"scale_{len(cset)}",
+                                 reset=True)
+
+            def _time_one(retriever, n=20):
+                lat = []
+                for q in questions[:n]:
+                    t0 = _time.perf_counter()
+                    retriever.search(q["question"], k=10)
+                    lat.append((_time.perf_counter() - t0) * 1000)
+                return _stats.median(lat)
+
+            exact_ms = _time_one(d)
+            hnsw_ms = _time_one(c)
+            print(f"{label:<28}{len(cset):>10}{exact_ms:>12.3f}{hnsw_ms:>12.3f}")
+            d2_results[label] = {"n_chunks": len(cset), "exact_ms": exact_ms, "hnsw_ms": hnsw_ms}
+
+    d3_chunks = build_chunks(corpus, "markdown", 400)
+    for c in d3_chunks:
+        c.meta["status"] = "archived" if "ARCHIVED" in c.doc_id else "current"
+
+    chroma_d3 = ChromaRetriever(d3_chunks, path=".chroma_lab3", collection="lab3-d3",
+                             reset=True)
+    trap_qs = [q for q in questions if q["id"] in ("Q29", "Q30", "Q31")]
+
+    def _hit_at_1(retriever, qs, where=None):
+        correct = 0
+        for q in qs:
+            hits = retriever.search(q["question"], k=10, where=where) if where \
+                else retriever.search(q["question"], k=10)
+            top = hits[0].doc_id if hits else None
+            correct += int(top in q["relevant_docs"])
+        return correct / len(qs)
+
+    before = _hit_at_1(chroma_d3, trap_qs)
+    after = _hit_at_1(chroma_d3, trap_qs, where={"status": "current"})
+    print(f"\nD3: hit_rate@1 on Q29/Q30/Q31 -- before filter: {before:.4f}  "
+          f"after filter (status=current): {after:.4f}")
+
+    save_results("index", {                                        # <-- NEW
+        "d1": rows,
+        "d2": d2_results,
+        "d3": {"hit_rate_at_1_before": before, "hit_rate_at_1_after": after},
+    })
+    #raise NotImplementedError
 
 
 SWEEPS = {
