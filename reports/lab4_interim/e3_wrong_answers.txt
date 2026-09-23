@@ -1,0 +1,142 @@
+20 wrong answers (correctness < 2)
+
+================================================================================
+Q03 | single_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: Is maternity covered on the Bronze plan?
+GOLD    : No. Maternity is not available on Bronze at any sum insured; it is available on Silver, Gold and Platinum.
+ANSWER  : Maternity cover is not available on the Bronze plan at any sum insured [1]. Under the Bronze plan terms and sub-limits, maternity is explicitly listed as not covered [2].
+GOLD-CTX: Maternity cover is not available on the Bronze plan at any sum insured [1][10].
+================================================================================
+Q04 | single_hop | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: What is the waiting period for pre-existing diseases?
+GOLD    : 36 months of continuous coverage. A rider can reduce it to 24 or 12 months if bought at inception or first renewal.
+ANSWER  : Pre-existing conditions carry a 36-month waiting period on retail plans unless Aurora explicitly waives it in writing on the policy schedule [3][5]. Under the Aurora Senior Care plan, the waiting period for pre-existing diseases is 24 months [5].
+GOLD-CTX: The waiting period for pre-existing diseases (PED) is 36 months for any condition diagnosed or treated in the 48 months before the policy start date [3]. This waiting period can be reduced to 24 months or 12 months at an additional premium by purchasing the PED Waiting Period Reduction rider at policy inception or at the first renewal [8].
+================================================================================
+Q05 | single_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: How long is the grace period for an annual policy?
+GOLD    : 30 days for annual policies (15 days for instalment policies). Cover does not operate during the grace period; it only preserves continuity of waiting periods and no-claim bonus.
+ANSWER  : The grace period for an annual policy is 30 days from the renewal due date [1]. Under Aurora Life policies, the grace period for an annual premium mode is also 30 days [5].
+GOLD-CTX: The grace period for an annual policy is 30 days from the renewal due date [3].
+================================================================================
+Q10 | single_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: Who can I escalate to if Aurora rejects my claim and their internal response is unsatisfactory?
+GOLD    : Escalate to Aurora's Grievance Redressal Officer (14-day response), then to the Insurance Ombudsman for your region within 1 year of the final rejection.
+ANSWER  : If you are not satisfied with the Stage 1 outcome or receive no response within 15 days, you can escalate to Aurora's Grievance Redressal Officer [2]. If Aurora's final response is unsatisfactory or they have not responded within 30 days of the original complaint, you may approach the Insurance Ombudsman for your region [1].
+GOLD-CTX: If you are not satisfied with the Stage 1 outcome, you can escalate the matter to Aurora's Grievance Redressal Officer [2]. If Aurora's final response is unsatisfactory, you may approach the Insurance Ombudsman for your region [3]. You also retain the right to take the dispute to a consumer forum or civil court [5].
+================================================================================
+Q11 | single_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: How much ambulance cover is there?
+GOLD    : Rs 5,000 per hospitalisation for road ambulance on all plans. Gold and Platinum additionally cover air ambulance up to Rs 2,50,000 per year within India on prior authorisation.
+ANSWER  : All plans include road ambulance cover of ₹5,000 per hospitalisation [1]. Additionally, the Aurora Gold plan provides air ambulance cover up to ₹2,50,000 per policy year within India on prior authorisation [5].
+GOLD-CTX: Ambulance cover is ₹5,000 per hospitalisation across all plans [5][12]. This applies to road ambulance only [5].
+================================================================================
+Q19 | multi_hop | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 2
+QUESTION: I am on Silver with a 5 lakh sum insured and took a room at Rs 15,000 per day. Will everything be paid?
+GOLD    : No. The Silver room-rent limit is 2% of 5,00,000 = Rs 10,000/day, so an eligibility ratio of 0.667 is applied by proportionate deduction to all room-linked charges (room, surgeon, anaesthetist, nursing, OT, investigations). Pharmacy and consumables are not reduced.
+ANSWER  : No, not everything will be paid because the room-rent limit for a Silver plan with a ₹5,00,000 sum insured is 2%, or ₹10,000 per day [1][2]. Because the ₹15,000 per day room exceeds this limit, an eligibility ratio of 0.667 applies and proportionate deductions will be made across applicable hospitalisation charges [1][5].
+GOLD-CTX: No, not everything will be paid because the ₹15,000 daily room rent exceeds the Silver plan's limit of 2% of the sum insured, which is ₹10,000 per day [3][19]. Because the limit is exceeded, a proportionate deduction is applied, reducing the room charges and all associated medical expenses (such as surgeon, anaesthetist, nursing, and OT fees) to an eligibility ratio of 0.667 [4][19][20]. You will have to pay the difference out of pocket, although pharmacy and consumables are not subject to proportionate reduction [20][21].
+================================================================================
+Q20 | multi_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 2
+QUESTION: My mother is 63 and I want to add her to my policy. Which plans allow it and what changes?
+GOLD    : Dependent parents can be added on Silver (at extra premium), Gold and Platinum, but not on Bronze. Premium is set by the eldest member's age, and on Silver a 10% co-payment applies to every claim once the eldest insured is above 60. Aurora must present a separate senior-citizen policy as an alternative in writing.
+ANSWER  : Dependent parents can be covered under the Silver plan (at an extra premium), Gold plan, and Platinum plan, but cannot be added to the Bronze plan [1]. Adding a parent changes the premium calculation, as policy premium is determined by the age of the eldest covered member [4]. Aurora advisers are required to present both the floater addition and an individual senior-citizen policy option in writing before the sale [4].
+GOLD-CTX: Dependent parents can be added to Silver (at an extra premium), Gold, and Platinum plans, but cannot be covered under Bronze [1][18]. Because policy premium is determined by the age of the eldest member, adding her will increase the premium based on her age band [8]. Additionally, on a Silver plan, having an insured member over age 60 triggers a 10% co-payment on every claim, whereas Gold and Platinum require no co-payment [13][27].
+================================================================================
+Q21 | multi_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: I am switching from another insurer. Will my 3 years of waiting period carry over if I increase my sum insured?
+GOLD    : Waiting-period credit carries over only up to the sum insured of the previous policy including its accrued no-claim bonus. The incremental sum insured is subject to fresh waiting periods. Apply 45-60 days before the existing renewal date.
+ANSWER  : Waiting periods already served with a previous insurer carry over on portability only up to the sum insured of the previous policy, including any accrued no-claim bonus [1][2]. Any increase or excess in sum insured will be subject to fresh waiting periods on the incremental amount [1][2].
+GOLD-CTX: Waiting periods already served with a previous insurer will carry over, but only up to the sum insured of the previous policy, including any accrued no-claim bonus [8][19]. Any increase in the sum insured is subject to fresh waiting periods on the incremental amount [8][19].
+================================================================================
+Q22 | multi_hop | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: My baby was born last week. What do I need to do and by when?
+GOLD    : The newborn is covered from day one within the maternity limit for the first 90 days. To continue cover beyond that, inform Aurora and add the child as a dependent within 90 days of birth, which is guaranteed-issue with no medical underwriting. After 90 days the child is treated as a fresh applicant.
+ANSWER  : To continue cover beyond the first 90 days, you must inform Aurora within 90 days of birth to add the newborn to the policy as a dependent [1]. Adding the newborn within this 90-day window is guaranteed-issue with no medical underwriting, whereas after this period the child is treated as a fresh applicant [1].
+GOLD-CTX: A newborn is automatically covered for the first 90 days from birth within the maternity limit [5]. To continue coverage beyond 90 days, you must inform Aurora and add the newborn to the policy as a dependent within 90 days of birth [6]. Adding the child within this 90-day window is guaranteed-issue with no medical underwriting, whereas requests made after the window will treat the child as a fresh applicant [6].
+================================================================================
+Q23 | multi_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 2
+QUESTION: Can I get an out-patient physiotherapy session reimbursed on Bronze?
+GOLD    : No. Out-patient treatment is not covered under any base plan, and the OPD rider is not available on Bronze.
+ANSWER  : The out-patient benefit (OPD rider) is not available on the Bronze plan [1]. I don't have enough information in the provided sources to answer that.
+GOLD-CTX: Out-patient consultations, diagnostics, and pharmacy are not covered under the base plan on any tier [1]. Additionally, the optional OPD rider is not available on the Bronze plan [2]. I don't have enough information in the provided sources to answer that.
+================================================================================
+Q24 | multi_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: I had a claim last year on Silver. What happens to my accumulated no-claim bonus?
+GOLD    : On Silver a claim reduces the accumulated bonus by 10 percentage points; it does not reset to zero. Silver accrues 10% per claim-free year up to 50%.
+ANSWER  : Under the Aurora Silver plan, a claim in any year reduces your accumulated no-claim bonus by 10 percentage points [1]. It does not reset your bonus to zero [1].
+GOLD-CTX: Under the Aurora Silver plan, a claim in any year reduces your accumulated no-claim bonus by 10 percentage points [7]. It does not reset the accumulated bonus to zero [7].
+================================================================================
+Q25 | multi_hop | correctness 1 | gold-context correctness 0
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 2
+QUESTION: How much would a caesarean cost me out of pocket on Gold if the hospital bills 1,60,000?
+GOLD    : The Gold caesarean limit is Rs 1,00,000 per delivery, so approximately Rs 60,000 is out of pocket. Gold has no co-payment. Pre-natal care in the 30 days before and post-natal care for 60 days after draw down the same limit.
+ANSWER  : Under the Gold plan, the limit for a Caesarean section is ₹1,00,000 per delivery [1]. I don't have enough information in the provided sources to answer that.
+GOLD-CTX: I don't have enough information in the provided sources to answer that.
+================================================================================
+Q26 | multi_hop | correctness 1 | gold-context correctness 1
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: Is knee replacement covered immediately after I buy the policy?
+GOLD    : No. Knee and hip joint replacement other than following an accident carries a 24-month waiting period. Sub-limits also apply: Rs 1,50,000 per joint on Bronze, Rs 2,50,000 on Silver, none on Gold.
+ANSWER  : Knee joint replacement other than following an accident is not covered immediately, as it is subject to a 24-month waiting period [1][5]. However, if the procedure follows an accident, accidental injury coverage is available immediately from day one [1][2][5].
+GOLD-CTX: Knee joint replacement is not covered immediately unless it is required following an accidental injury, which has no waiting period and is covered from day one [2][5]. For non-accidental cases, knee joint replacement is subject to a 24-month waiting period as a specified procedure [2][5].
+================================================================================
+Q28 | multi_hop | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: I want cashless at a hospital that turns out to be an excluded provider. What are my options?
+GOLD    : Cashless is not available at an excluded provider. The claim is payable on reimbursement only if the admission was a genuine emergency with no reachable alternative facility, and pre-approval is required.
+ANSWER  : Cashless access is denied if the hospital is an excluded provider [2][4]. You may seek reimbursement instead [5], but the sources conflict on the eligibility conditions: Source [1] states that reimbursement is payable only if the admission was a genuine emergency and no alternative facility was reachable [1], whereas Source [3] states that reimbursement is available with pre-approval [3].
+GOLD-CTX: Cashless access is not available at an excluded provider [3][8]. A claim from an excluded provider is payable on a reimbursement basis only, requires pre-approval, and is eligible only if the admission was a genuine emergency and no alternative facility was reachable [3][4].
+================================================================================
+Q29 | trap_archived | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: How many days do I have to respond to a query Aurora raises on my claim?
+GOLD    : 45 days from the date of the query, under the rules effective 1 April 2026. (The archived 2024 document says 30 days and must not be quoted for current policies.)
+ANSWER  : For a reimbursement claim, you have 45 days from the date of the query to respond [2][5]. For an Aurora motor insurance claim, the deadline to respond to a query is 30 days from the date of the query [4].
+GOLD-CTX: You have 45 days from the date of the query to submit your response to an Aurora query [4]. If the response is not received within 45 days, Aurora closes the claim, which can then be reopened once within 6 months on written request [5].
+================================================================================
+Q32 | aggregation | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: Which plans have no co-payment?
+GOLD    : Gold and Platinum have nil co-payment at all ages. Bronze applies 20% and Silver 10% where the eldest insured is above 60.
+ANSWER  : Aurora Gold has no co-payment at any age [1]. Aurora Silver has no co-payment when the eldest insured member is below 60 years of age [2].
+GOLD-CTX: The Gold and Platinum plans have no co-payment [3]. Specifically, the Gold plan has nil co-payment at all ages [15]. In contrast, the Bronze plan requires a 20% co-payment and the Silver plan requires a 10% co-payment for policyholders above age 60 [3].
+================================================================================
+Q35 | aggregation | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 2   | in context (top 5): True   | gold-context calls: 1
+QUESTION: List everything that is excluded relating to dental treatment.
+GOLD    : Dental treatment and oral surgery are excluded unless necessitated by accidental injury requiring hospitalisation. One dental check-up and cleaning per year is covered under the optional OPD rider.
+ANSWER  : Dental treatment and oral surgery are permanently excluded from all Aurora indemnity plans, unless necessitated by an accidental injury requiring hospitalisation [2][3]. Out-patient dental work is also listed as not covered by any plan [1].
+GOLD-CTX: Under Aurora indemnity plans, dental treatment and oral surgery are permanently excluded unless necessitated by an accidental injury requiring hospitalisation [1][3]. Additionally, general out-patient care is not covered under base plans, though the optional OPD rider covers one dental check-up and cleaning per year [11][13].
+================================================================================
+Q40 | unanswerable | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 3   | in context (top 5): True   | gold-context calls: 1
+QUESTION: What is the phone number for the Aurora helpline?
+GOLD    : REFUSE on the number. The corpus mentions a 24x7 helpline and the email grievance@aurorahealth.example but gives no phone number.
+ANSWER  : The helpline number is located on your policy schedule [1]. I don't have enough information in the provided sources to answer that.
+GOLD-CTX: I don't have enough information in the provided sources to answer that.
+================================================================================
+Q42 | paraphrase | correctness 1 | gold-context correctness 2
+first relevant doc rank (top 30): 1   | in context (top 5): True   | gold-context calls: 1
+QUESTION: The hospital said they won't do cashless. Am I finished?
+GOLD    : No. Denial of cashless is not a rejection of the claim. You can pay and file for reimbursement, where the same facts are assessed against the full document set; a material proportion of denied cashless requests are later settled.
+ANSWER  : Denial of cashless access is not a rejection of your claim [1]. In cases where cashless was denied, you can file for reimbursement under Route 2 [3].
+GOLD-CTX: No, a denial of cashless is not a rejection of your claim [7]. If cashless is unavailable or denied, you can pay the hospital directly and submit a claim for reimbursement along with the required documents within 30 days of discharge [9][16][18]. A material proportion of denied cashless requests are subsequently settled on reimbursement [9].
+================================================================================
+Q44 | paraphrase | correctness 0 | gold-context correctness 2
+first relevant doc rank (top 30): 2   | in context (top 5): True   | gold-context calls: 1
+QUESTION: AUR-HI-SIL-2026 — what are the sum insured options?
+GOLD    : Rs 5,00,000 or Rs 10,00,000.
+ANSWER  : I don't have enough information in the provided sources to answer that.
+GOLD-CTX: Aurora Silver (UIN: AUR-HI-SIL-2026) is available with sum insured options of ₹5,00,000 or ₹10,00,000 [1][2]. These options can be taken on either an individual or a family-floater basis [2].
