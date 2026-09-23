@@ -1,287 +1,117 @@
-## Part A — The answer prompt
+# Lab 4 Report: RAG v1
 
-The prompt was written before reading `aip/rag.py::ANSWER_SYSTEM`, then
-revised after comparing the two. The final version is in `labs/lab4/rag.py`.
+## Part A: The answer prompt
 
-The six required elements map to the rules as follows. The rules are ranked
-so that refusal wins any conflict.
+I wrote ANSWER_SYSTEM before opening aip/rag.py and then revised it after comparing the two. The final version is in labs/lab4/rag.py. It has six rules in priority order. Rule 1 is the exact refusal string, including how to handle a partial answer. Rule 2 says to answer only from the numbered sources. Rule 3 asks for citations by index, rule 4 forbids citing a number that was never supplied, rule 5 covers sources that disagree, and rule 6 keeps answers to two or three sentences.
 
-| Element | Rule |
-|---|---|
-| Exact refusal string (+ partial answers) | 1 |
-| Answer only from sources | 2 |
-| Cite by index | 3 |
-| Never cite an unsupplied index | 4 |
-| Surface disagreement | 5 |
-| Length discipline | 6 |
+Compared with the reference, there are six differences.
 
-**Differences from the reference**
+1. The reference types the refusal sentence out by hand. My prompt inserts the REFUSAL constant through the f-string, so the prompt and the code that detects refusals always use the same string.
+2. The reference has no way to give a partial answer. It either answers everything or refuses everything. My prompt answers the supported part with citations and ends with the refusal sentence. Q37 needs this, because otherwise the model has to either drop a fact it could support or make up the missing limit.
+3. Both prompts forbid outside knowledge. My prompt also says not to infer numbers, limits or deadlines, since an invented figure is the most expensive mistake an insurance helpdesk can make.
+4. Both prompts ask the model to point out conflicting sources. My prompt also asks it to mention when a source is archived, which targets the claims-timelines (45 days) versus claims-timelines-2024-ARCHIVED (30 days) case.
+5. I took the priority ordering from the reference, with refusal as rule 1, so the model knows which rule wins when answering and refusing pull in different directions.
+6. Both prompts limit length. My prompt also says no preamble, because output tokens drive most of the cost and latency (T1 §2.2).
 
-1. **Refusal string.** The reference types the refusal sentence out in the
-   prompt; ours inserts `{REFUSAL}` through the f-string. This keeps one
-   source of truth, so the prompt and the detection code cannot drift apart.
-2. **Partial answers.** The reference does not handle them: it either answers
-   fully or refuses fully. Ours answers the supported part with citations and
-   then ends with `REFUSAL`. Q37 needs this; otherwise the model must either
-   refuse a fact it could support or invent the missing limit.
-3. **Grounding.** The reference says to use only the sources and not guess.
-   Ours also forbids inferring numbers, limits or deadlines, because invented
-   figures are the costliest error for an insurance helpdesk.
-4. **Disagreement.** The reference says to note the conflict and cite both.
-   Ours does the same and also flags archived sources, aimed at
-   `claims-timelines` (45 days) vs `claims-timelines-2024-ARCHIVED` (30 days).
-5. **Rule ordering.** Adopted from the reference: rules are in explicit
-   priority order with refusal first, so the model has a tie-break when
-   answering and refusing conflict.
-6. **Length.** Both ask for two or three sentences; ours also says "no
-   preamble". Output tokens dominate cost and latency (T1 §2.2).
+Since a partial answer always ends with the refusal sentence, validate_answer sorts every output into one of three kinds. If the text is exactly the refusal string, it is a full refusal and needs no citations. If it ends with the refusal string and has at least one citation, it is a partial answer. Anything else is a normal answer and needs at least one citation. The reference checks for refusals with startswith, which would count my partial answers as normal answers.
 
-**Downstream consequence.** A partial answer always ends with `REFUSAL`, so
-`validate_answer` classifies outputs three ways:
-- full refusal: `text == REFUSAL`, no citations needed;
-- partial: ends with `REFUSAL` and has at least one citation;
-- answer: at least one citation, no `REFUSAL`.
+## Part B: Citation enforcement
 
-The reference detects refusal with `startswith`, which would count our
-partial answers as non-refusals.
+Citation validity was 1.000 (45 out of 45). This comes from the code, not the prompt. validate_answer checks every [n] against the number of sources format_context actually rendered. That number can be smaller than len(hits), because format_context drops any source that does not fit in max_chars, and the reference pipeline passes len(hits) instead. The validator also rejects empty answers, truncated answers (finish_reason of "length"), and any answer that is not a refusal but has no citations.
 
-## Part B — Citation enforcement
+When validation fails, I retry once and then refuse. A truncated answer is retried with double the token budget. Any other failure is retried with a message that names the problem and the valid range of source numbers. If the retry fails too, the answer is replaced with the refusal string. I decided against stripping bad citations: a made-up source number usually goes with a made-up claim, and removing the number hides the evidence while leaving the claim in place. I allow only one retry to stay inside the cost and latency budget. Every path through the function ends in either a valid answer or a refusal, so an invalid citation never reaches the user.
 
-**Citation validity: 1.000 (45/45).** Validity is guaranteed by code, not by the
-prompt. `validate_answer` checks every `[n]` against the number of sources
-actually rendered by `format_context` (not `len(hits)`, since sources that
-don't fit in `max_chars` are dropped). It also rejects empty or truncated
-(`finish_reason == "length"`) outputs, and any non-refusal with no citations.
+## Part C: Refusal
 
-**On failure (B3): retry once, then refuse.** A truncated answer is retried
-with double the token budget. Any other failure is retried with a corrective
-message naming the specific problem and the valid source range. If the retry
-also fails, the answer becomes `REFUSAL`. We never strip invalid citations:
-an invented index usually means an invented claim, and stripping removes the
-evidence while keeping the claim. We cap it at one retry to stay within the
-cost and latency budget. Every path ends in a valid answer or `REFUSAL`, so an
-invalid citation can never reach the user.
+C1. All five unanswerable questions (Q36 to Q40) were declined, for a recall of 5/5. Four were full refusals. Q40 was a partial answer: it said the helpline number is printed on the policy schedule [1] and refused the rest. Q37 was a full refusal.
 
-## Part C — Refusal
+C2. Q37 should have produced a partial answer, since the corpus says a Platinum international benefit exists but does not give its limit. With retrieved context it was refused outright. Before changing the prompt I checked retrieval. Neither relevant document (exclusions or plans-overview) was in the top 5. At final_k = 10, plans-overview came in at rank 9, but the chunk retrieved was a table fragment that had lost its header row and had no row about international cover. The fact Q37 depends on never reached the model at final_k 5, 8 or 10, so given what it saw, the full refusal was the right call. This is failure mode 2 (chunk boundary), and raising final_k does not help. With gold context, the same generator gave the correct partial answer: "Treatment taken outside India is permanently excluded across Aurora indemnity plans, except under the Platinum plan's international emergency benefit [1][5][19]", followed by the refusal sentence for the limit. The partial-answer rule works whenever the supporting fact is present (Q40 shows the same thing), so I left the prompt alone. The whole loss on Q37 comes from retrieval.
 
-**C1.** All 5 unanswerable questions (Q36–Q40) were declined: recall 5/5.
-Four were full refusals. Q40 was a partial answer: the helpline number is on
-the policy schedule [1], then REFUSAL for the rest. Q37 was a full refusal.
+C3. Four of the 40 answerable questions were refused. Refusal recall is 5/5 = 1.00 and refusal precision is 5/9 = 0.56. Both numbers are noisy. With only five unanswerable questions, one case moves recall by 0.20 and precision by about 0.1, so I do not treat any difference smaller than about 0.15 as real. Precision falls short of the 0.70 target because of four wrongful refusals: Q23, Q25, Q43 and Q44.
 
-**C2 — Q37.** Q37 should get a partial answer (a Platinum international
-benefit exists; its limit is not in the corpus), but with retrieved context
-it was fully refused. Diagnosis before touching the prompt: neither relevant
-doc (`exclusions`, `plans-overview`) was in the top 5. At final_k = 10,
-`plans-overview` entered at rank 9, but the retrieved chunk was a table
-fragment with its header row cut off and no international-cover row. The
-fact Q37 needs was not in context at any final_k tested (5, 8, 10), so the
-full refusal was correct given the context: failure mode 2 (chunk boundary).
-Raising final_k does not fix it.
+C4. For the strict setting I added this sentence to the prompt: "Refuse unless the sources explicitly and directly state the answer to the whole question. If you are unsure whether the sources fully support an answer, refuse."
 
-With gold context, the same generator gives the correct partial answer:
-"Treatment taken outside India is permanently excluded across Aurora
-indemnity plans, except under the Platinum plan's international emergency
-benefit [1][5][19]", followed by the refusal sentence for the limit. The
-prompt's partial-answer rule works when the supporting fact is present (as
-Q40 also shows), so no prompt change was made. The Q37 loss is entirely
-retrieval-attributable.
-
-**C3.** Of 40 answerable questions, 4 were refused.
-
-    refusal recall    = 5/5 = 1.00
-    refusal precision = 5/9 = 0.56
-
-Both are noisy: with n = 5, one case moves recall by 0.20 and precision by
-~0.1, so we claim no difference below ~0.15. Precision is below the 0.70
-target because of 4 wrongful refusals (Q23, Q25, Q43, Q44).
-
-**C4 — Refusal strictness.** The strict setting appends: "Refuse unless the
-sources explicitly and directly state the answer to the whole question. If
-you are unsure whether the sources fully support an answer, refuse."
-
-| Setting | Recall | Precision | Wrongly refused (answerable) |
+| Setting | Recall | Precision | Answerable questions refused |
 |---|---|---|---|
 | Default | 5/5 = 1.00 | 5/9 = 0.56 | Q23, Q25, Q43, Q44 |
-| Strict | 5/5 = 1.00 | 5/13 = 0.38 | + Q27, Q28, Q34, Q45 |
+| Strict | 5/5 = 1.00 | 5/13 = 0.38 | the same four, plus Q27, Q28, Q34, Q45 |
 
-Recall was already 5/5, so stricter refusal could only add false refusals:
-+4 wrongful refusals, no measured gain. The precision drop (0.18) is only just
-above the noise floor; the raw counts (4 → 8) are the clearer evidence.
+Recall was already 5/5, so being stricter could only add wrongful refusals, and it added four with nothing gained. The precision drop of 0.18 is only just above the noise level, so the raw counts (4 wrongful refusals going to 8) are the better evidence.
 
-**Recommendation: the default setting.** The two errors do not cost the same.
-A wrongful refusal sends the customer to a human agent: a few minutes lost,
-fully recoverable. An invented answer (a wrong claim deadline or coverage
-limit) gets acted on: a customer can lose a valid claim, and the insurer
-faces a complaint or regulatory finding. So for an insurance helpdesk we would
-accept several unnecessary refusals to prevent one invented answer, and we
-bias the system toward refusing. But the strict setting bought nothing on this
-set: it added 4 wrongful refusals and prevented no invented answers, so it is
-dominated. We would reconsider strict only if there were no human fallback.
-The 4 wrongful refusals under default go to the E3 failure analysis.
+I would keep the default setting. The two kinds of error cost very different amounts. An unnecessary refusal sends the customer to a human agent, which costs a few minutes and can be fully recovered. An invented answer, such as a wrong claim deadline or coverage limit, gets acted on. The customer may lose a valid claim, and the insurer may face a complaint or a regulatory finding. For that reason I would accept several unnecessary refusals to avoid a single invented answer, and I lean the system toward refusing. On this test set, though, the strict setting added four wrongful refusals without preventing any invented answers, so it is worse than the default on both counts. I would only reconsider it for a deployment with no human agent to fall back on. The four wrongful refusals under the default setting are covered in E3.
 
-## Part D — The judge
+## Part D: The judge
 
-**D1 — Rubrics.** Two single-criterion judges, written as new rubrics in
-`evaluate.py` (the `aip/` templates are left untouched). Changes from the
-shipped templates:
+D1. I wrote two single-criterion rubrics as new constants in evaluate.py and left the templates in aip/ unchanged.
 
-*Faithfulness (0/1)*
-1. Knowledge from outside the context makes a claim unsupported, even if it
-   is true.
-2. A claim stronger than the context is unsupported: "up to 12" stated as
-   "12", a dropped condition, waiting period or exclusion, "may" stated as
-   "will".
-3. Support may combine several parts of the context; the judge checks the
-   claim, not whether the [n] index points to the right source (citation
-   validity is already checked in code).
-4. A full refusal makes no claims and is supported. A partial answer is
-   judged only on the claims before the refusal sentence.
-5. Stating that sources conflict is supported if the conflict is in the
-   context.
+The faithfulness rubric (0 or 1) makes five changes to the template. First, anything taken from outside the context counts as unsupported, even if it is true. Second, a claim stronger than the context counts as unsupported, for example "up to 12" turned into "12", a dropped condition, waiting period or exclusion, or "may" turned into "will". Third, support can come from combining several parts of the context, and the judge checks the claim itself rather than whether the [n] points at the right source, since the code already checks citation numbers. Fourth, a full refusal makes no claims and counts as supported, and a partial answer is judged only on what it says before the refusal sentence. Fifth, saying that sources conflict counts as supported if the context really does contain the conflict.
 
-*Correctness (0/1/2)*
-1. A separate branch for unanswerable references: declining (or answering
-   only the supported part) scores 2, and a confident answer scores 0.
-   Without this, the 5 correct refusals would have scored 0.
-2. For answerable references, "central fact wrong" (a number, limit,
-   deadline or yes/no) scores 0, a missing secondary detail scores 1, and a
-   full refusal scores 0.
-3. Explicit handling of conflicting sources: the current value with the
-   archived one marked as superseded scores full marks; both presented as
-   equally valid scores 1.
+The correctness rubric (0, 1 or 2) makes three changes. It has a separate branch for questions whose reference answer says to decline: declining, or answering only the supported part, scores 2, and a confident answer scores 0. Without that branch, all five correct refusals would have scored 0. For answerable questions, a wrong central fact (a number, limit, deadline or yes/no) scores 0, a missing secondary detail scores 1, and a full refusal scores 0. For conflicting sources, giving the current value and marking the archived one as superseded earns full marks, while presenting both as equally valid scores 1.
 
-Both rubrics ask for the reason before the score. **Parse failures are
-missing data, not failing answers:** both judge functions return `None` when
-`llm_judge` reports `parse_error` or no `score`, and all averages skip `None`
-(the shipped harness scored these as 0). The run reports excluded cases:
-0 parse errors on the full run.
+Both rubrics ask the judge to give its reason before its score. I also changed how parse failures are handled. The provided harness scored an unparseable verdict as 0, which drags the average down without anyone noticing. My judge functions return None when llm_judge reports a parse error or the verdict has no score, and every average skips None values. The full run printed how many cases were excluded, and there were none.
 
-**Judged results (full run, n = 45):** faithfulness 0.956 (43/45);
-correctness 0.750 normalised (1.500 / 2, on the 40 answerable questions).
+On the full run, faithfulness was 0.956 (43 of 45) and correctness was 0.750 normalised (1.500 out of 2 on the 40 answerable questions).
 
-**D2 — Calibration.** 20 answers hand-labelled against each rubric. Sample:
-all 9 refusals (full and partial) plus every third answered question, chosen
-by our `refused` flag, never by judge score, so that refusal handling is
-tested and the labels are not all one class.
+D2. I hand-labelled 20 answers against each rubric. The sample was every refusal, full or partial (9 in total), plus every third answered question. I picked them using my own refused flag and never looked at the judge's scores while choosing, so that refusal handling would be tested and the labels would not all fall into one class.
 
-| Rubric | Raw agreement | Cohen's κ | n |
+| Rubric | Raw agreement | Cohen's kappa | n |
 |---|---|---|---|
 | Faithfulness | 20/20 = 1.00 | 1.00 | 20 |
 | Correctness | 18/20 = 0.90 | 0.81 | 20 |
 
-Faithfulness κ = 1.00 rests on a single negative case (Q04): 19 of 20 answers
-were faithful, so chance agreement is very high and one disagreement would
-have pulled κ toward 0. It shows the judge caught the one unfaithful answer,
-not that the judge is perfect.
+The faithfulness kappa of 1.00 depends on a single unfaithful answer, Q04. With 19 of 20 answers faithful, chance agreement is very high, and one disagreement would have pushed kappa close to 0. What it shows is that the judge caught the one unfaithful answer, which is less than showing the judge is perfect.
 
-Correctness disagreements, both from rubric wording rather than judge error:
-- **Q40** (human 2, judge 1): the judge read "asserts something the reference
-  does not support" as "not mentioned"; we read it as "contradicts". Fix:
-  "contradicts the reference or invents a figure".
-- **Q33** (human 1, judge 2): the rubric does not say a comparison must attach
-  each value to its plan. Fix: add that requirement for comparison questions.
+Both correctness disagreements came from the rubric's wording. On Q40 I gave 2 and the judge gave 1: the judge read "asserts something the reference does not support" as "says something the reference does not mention", while I read it as "contradicts the reference". Changing it to "contradicts the reference or invents a figure" would fix this. On Q33 I gave 1 and the judge gave 2, because the rubric never says a comparison has to link each value to its plan, and adding that requirement would fix it. A third unclear case came up while labelling. On Q37 the reference expects a partial answer but the system refused fully, and the decline branch as written scores that 2. I gave it 2 to follow the rubric, although I think it deserves 1. Both kappa values are above 0.4, so I did not revise the rubric, but these three wording fixes are the next changes I would make.
 
-A third ambiguity surfaced while labelling: Q37 (gold expects a partial
-answer; the system fully refused) scores 2 under the decline branch as
-written. We labelled it 2 to follow the rubric, but it deserves 1. Both κ
-values clear the 0.4 threshold, so the rubric was not revised; these three
-wording fixes are the next iteration.
+D3. The generator is gemini-3.7-flash (MAIN) and the judge is gemini-3.5-flash (LARGE). They are different models from the same provider and family, which reduces self-preference bias (T3 §4.1) but does not remove it. The bias would push scores up, because a judge trained like the generator is more likely to accept its phrasing as supported and correct. There is a second concern too. Going by the version numbers, the judge looks like an older generation than the generator, not the stronger tier llm_judge is meant to use, and a weaker judge is more likely to miss subtle unsupported claims, which would also inflate faithfulness. My calibration puts some limit on this. On the 20 labelled cases the judge disagreed with me in both directions on correctness, once stricter and once more lenient, so I saw no upward pattern. Twenty cases cannot rule out a small bias, though. The proper fix would be a judge from another provider, which I did not have configured.
 
-**D3 — Self-preference.** Generator: `gemini-3.7-flash` (MAIN). Judge:
-`gemini-3.5-flash` (LARGE). The judge is a different model but the same
-provider and family, so self-preference bias (T3 §4.1) is reduced, not
-eliminated. It biases **upward**: shared training and style make the judge
-likelier to accept the generator's phrasing as supported and correct. A
-second risk: by version number the judge appears to be an older generation
-than the generator, not the "stronger tier" `llm_judge` intends, and a
-weaker judge misses subtle unsupported claims, again inflating faithfulness.
-The calibration partly bounds this: on 20 human-labelled cases the judge
-disagreed with us in both directions on correctness (once stricter, once more
-lenient), with no systematic upward pattern, but n = 20 cannot rule out a
-small bias. The proper fix is a judge from a different provider; we did not
-have one configured.
+## Part E: Evaluation
 
-## Part E — Evaluation
-
-**E1 — Full results (n = 45).**
+E1. Results on all 45 questions:
 
 | Metric | Target | Result | Met |
 |---|---|---|---|
-| Citation validity | 1.00 | 1.000 (45/45) | ✅ |
-| Faithfulness | ≥ 0.90 | 0.956 (43/45), κ = 1.00 | ✅ |
-| Correctness | ≥ 0.75 | 0.750, κ = 0.81 | ✅ (at target) |
-| Refusal recall | ≥ 4/5 | 5/5 | ✅ |
-| Refusal precision | ≥ 0.70 | 5/9 = 0.56 | ❌ |
-| Repair rate | reported | 20/45 = 0.444 (reference 0.089) | — |
-| Cost per query | ≤ $0.01 | $0.0037 (generation only) | ✅ |
-| p95 end-to-end latency | ≤ 6,000 ms | 9,066 ms (p50 4,194 ms) | ❌ |
+| Citation validity | 1.00 | 1.000 (45/45) | yes |
+| Faithfulness | 0.90 or more | 0.956 (43/45), kappa 1.00 | yes |
+| Correctness | 0.75 or more | 0.750, kappa 0.81 | yes, exactly at target |
+| Refusal recall | 4/5 or more | 5/5 | yes |
+| Refusal precision | 0.70 or more | 5/9 = 0.56 | no |
+| Repair rate | reported | 20/45 = 0.444 (reference 0.089) | reported |
+| Cost per query | $0.01 or less | $0.0037, generation only | yes |
+| p95 end-to-end latency | 6,000 ms or less | 9,066 ms (p50 4,194 ms) | no |
 
-Cost and latency were measured per question over the generator's calls,
-retries included, and exclude judge calls (evaluation cost, not system cost).
+I measured cost and latency per question, adding up every generator call including retries. Judge calls are left out because they are part of evaluating the system, not running it.
 
-**All 20 repairs were truncations** (`finish_reason == "length"` on the first
-attempt). The generator is a reasoning model whose invisible thinking tokens
-use most of the 600-token output budget, the same failure as the handout's
-truncated judge, here in generation. The B2 truncation check caught every
-case: without it, 44% of answers would have been returned cut off
-mid-sentence, some with a partial figure that reads as complete. The repairs
-also cause the latency miss: each makes a second full call, pushing p95 to
-9.1 s. The fix is to raise the first-attempt budget (~1,500 tokens); it was
-not applied here because it changes every answer and would invalidate the C4
-and D2 results. It is the first item on the Lab 5 backlog.
+Every one of the 20 repairs was a truncation, meaning the first attempt ended with finish_reason "length". The generator is a reasoning model, and its hidden thinking tokens use up most of the 600-token output limit. This is the same problem as the truncated judge described in the handout, only in the generator. The truncation check in validate_answer caught all 20. Without it, 44% of answers would have been sent out cut off mid-sentence, some of them ending on a partial figure that looks complete. The retries also explain the latency miss, since each one is a second full model call, which pushes p95 to 9.1 seconds. Raising the first-attempt limit to around 1,500 tokens should fix this. I did not make that change here, because it would alter every answer and invalidate the C4 and D2 results. It is the first item for Lab 5.
 
-**E2 — Gold-context decomposition.** The same generator (identical prompt,
-model, validation and repair; gold docs fed through `answer_question` via a
-stand-in retriever) run on retrieved context and on the gold documents,
-chunked with the same chunker, with the context limit raised so gold is never
-truncated. n = 42 (questions with at least one relevant document; Q36, Q38
-and Q39 have none).
+E2. I ran the same generator twice on the 42 questions that have at least one relevant document (Q36, Q38 and Q39 have none). The prompt, model, validation and repair were identical both times. One run used retrieved context. The other used the gold documents, split with the same chunker and passed through answer_question with a stand-in retriever, with the context limit raised so the gold documents were never cut short.
 
 | | Correctness (normalised) |
 |---|---|
 | A: gold context (generation ceiling) | 0.869 |
-| B: retrieved context (our system) | 0.750 |
-| Retrieval-attributable loss, A − B | 0.119 |
-| Generation-attributable loss, 1 − A | 0.131 |
+| B: retrieved context (my system) | 0.750 |
+| Retrieval-attributable loss (A minus B) | 0.119 |
+| Generation-attributable loss (1 minus A) | 0.131 |
 
-**The two losses are tied within noise.** Their gap (0.012) is exactly one
-question moving one score point (1 / 2 / 42), smaller than the judge's own
-disagreement rate (2/20 in D2). We do not claim either is larger: each is
-about half the loss. A = 0.869 means perfect retrieval would recover at most
-0.119, so retrieval work alone cannot reach the ceiling.
+The two losses are effectively tied. The gap between them is 0.012, which is exactly what one question moving by one score point produces (1 divided by 2, divided by 42), and that is smaller than the judge's own disagreement rate in D2. Neither loss is clearly bigger, and each accounts for about half. Since A is 0.869, even perfect retrieval would only recover 0.119, so improving retrieval alone cannot reach the ceiling.
 
-**Where Lab 5 goes:** with the measured losses tied, we choose by how well
-each fix is understood. Generation first: 20/45 first attempts were
-truncated (E1), a diagnosed cause with a one-line fix that also addresses
-the p95 latency miss. Retrieval second: diagnosed chunk-level failures
-(below) but no single fix.
+With the losses tied, I chose where to start Lab 5 based on how well each fix is understood. I will start with generation. Twenty of 45 first attempts were truncated (E1), the cause is known, and a one-line change should fix it while also addressing the latency miss. Retrieval comes second. I have identified specific chunk-level failures, listed below, but there is no single change that fixes them all.
 
-**E3 — Failure modes (10 wrong answers).** Of the 20 answers scoring < 2,
-gold context fixes 10 and not the other 10, consistent with the E2 tie. The
-relevant *document* was retrieved at rank 1–3 in every case, so retrieval
-failures here are chunk-level: the right document, the wrong chunk.
+E3. Of the 20 answers that scored below 2, gold context fixed 10 and did not fix the other 10, which matches the tie in E2. In every case the relevant document itself was retrieved at rank 1 to 3, so the retrieval failures happen at the chunk level: the right document, but the wrong chunk from it. I tagged ten of them.
 
-| Q | Mode | Evidence |
+| Question | Failure mode | What happened |
 |---|---|---|
-| Q44 | 2 Chunk boundary | Identifier and sum-insured options in separate chunks; only the UIN chunk retrieved |
-| Q32 | 2 Chunk boundary | Co-payment row in a header-less table chunk (same split as Q33, Q37) |
-| Q28 | 2 Chunk boundary | Two conditions in separate chunks, presented as a conflict |
-| Q29 | 4 Ranking | Motor-insurance chunk (other product line) in top 5; answer quotes it |
-| Q04 | 4 Ranking | PED-reduction rider chunk not in top 5 |
-| Q35 | 4 Ranking | OPD-rider dental chunk not in top 5 |
-| Q22 | 6 Generation | Fact was in the retrieved context; omitted |
-| Q25 | 6 Generation | Prompt rule 2 forbids derived arithmetic; with gold context it fully refused |
-| Q11 | 6 Generation | Gold context worse: dropped air-ambulance cover it was given |
-| Q03 | 6 Generation | Correct but incomplete (also Q05, Q21, Q24): rule 6 drops secondary details |
+| Q44 | 2, chunk boundary | The product code and the sum-insured options are in separate chunks, and only the chunk with the code was retrieved |
+| Q32 | 2, chunk boundary | The co-payment row is in a table chunk without its header, the same split seen in Q33 and Q37 |
+| Q28 | 2, chunk boundary | Two conditions arrived in separate chunks and the answer presented them as conflicting |
+| Q29 | 4, ranking | A motor insurance chunk from a different product line made the top 5, and the answer quoted it |
+| Q04 | 4, ranking | The chunk about the rider that shortens the pre-existing disease wait was not in the top 5 |
+| Q35 | 4, ranking | The chunk about the OPD rider's dental check-up was not in the top 5 |
+| Q22 | 6, generation | The missing fact was in the retrieved context and the answer left it out |
+| Q25 | 6, generation | Prompt rule 2 forbids working out numbers, which blocks the subtraction the question needs, and with gold context the answer was a full refusal |
+| Q11 | 6, generation | Gold context did worse and dropped the air ambulance cover it had been given |
+| Q03 | 6, generation | The answer is correct but incomplete, as are Q05, Q21 and Q24, because rule 6's length limit cuts secondary details |
 
-Tally: chunk boundary 3, ranking 3, generation 4. Q40 excluded: its low score
-is the rubric-wording issue found in D2, not a system failure.
+That gives three chunk boundary failures, three ranking failures and four generation failures. I left out Q40, because its low score comes from the rubric wording problem found in D2, not from anything the system did wrong.
 
-**Lab 5 backlog, by expected impact:**
-1. Raise the output budget: 20/45 truncated first attempts (E1), the p95
-   latency miss, and the spurious refusal tails (Q23, Q25).
-2. Repeat table headers in each chunk fragment: Q32, Q33, Q37.
-3. Revisit two prompt rules: rule 2 blocks simple arithmetic (Q25); rule 6's
-   length limit drops secondary details (Q03, Q05, Q21, Q24).
-4. Filter by product line at the data layer, as Lab 3 D3 did for archived
-   documents: Q29.
+In order of expected impact, the Lab 5 backlog is as follows. First, raise the output token limit, which should remove the 20 truncated first attempts, the latency miss and the unnecessary refusal sentences in Q23 and Q25. Second, repeat each table's header row in every chunk it is split into, which covers Q32, Q33 and Q37. Third, revisit two prompt rules: rule 2 stops the model doing simple arithmetic (Q25), and rule 6's length limit drops secondary details (Q03, Q05, Q21, Q24). Fourth, filter out other product lines when documents are ingested, the same way Lab 3 filtered archived documents, which would fix Q29.
