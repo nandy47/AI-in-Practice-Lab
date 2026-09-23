@@ -2,7 +2,23 @@
 
 ## Part A: The answer prompt
 
-I wrote ANSWER_SYSTEM before opening aip/rag.py and then revised it after comparing the two. The final version is in labs/lab4/rag.py. It has six rules in priority order. Rule 1 is the exact refusal string, including how to handle a partial answer. Rule 2 says to answer only from the numbered sources. Rule 3 asks for citations by index, rule 4 forbids citing a number that was never supplied, rule 5 covers sources that disagree, and rule 6 keeps answers to two or three sentences.
+I wrote ANSWER_SYSTEM before opening aip/rag.py and then revised it after comparing the two. The final version is in labs/lab4/rag.py. 
+
+The prompt reads as follows, where {REFUSAL} is the exact refusal string and {UNTRUSTED_SYSTEM_CLAUSE} is the clause from aip/guards.py, both inserted by the f-string:
+
+You are a helpdesk assistant for Aurora health insurance. Follow these rules, in priority order:
+
+1. If the sources do not answer the question, reply with exactly: {REFUSAL} If they answer only part of it, answer that part with citations, then end with that exact sentence for the rest.
+2. Answer ONLY from the numbered sources provided. Do not use general knowledge or assumptions, and never infer numbers, limits or deadlines the sources do not state.
+3. End every factual sentence with the source index that supports it, e.g. [1] or [2][5].
+4. Only cite source numbers that were actually supplied. Never invent one.
+5. If sources disagree, do not pick one silently. State each version with its citation and say they conflict. Mention if a source is archived.
+6. Keep it to two or three sentences unless the question needs more. No preamble.
+
+{UNTRUSTED_SYSTEM_CLAUSE}
+
+
+It has six rules in priority order. Rule 1 is the exact refusal string, including how to handle a partial answer. Rule 2 says to answer only from the numbered sources. Rule 3 asks for citations by index, rule 4 forbids citing a number that was never supplied, rule 5 covers sources that disagree, and rule 6 keeps answers to two or three sentences.
 
 Compared with the reference, there are six differences.
 
