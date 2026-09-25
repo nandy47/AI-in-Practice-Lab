@@ -110,7 +110,7 @@ def validate_answer(text: str, n_sources: int, finish_reason: str | None = None)
 
 
 def answer_question(question: str, retriever: Retriever, *, k: int = 12,
-                    final_k: int = 5, reranker=None, tier: str = "MAIN",max_chars: int = 8000) -> Answer:
+                    final_k: int = 8, reranker=None, tier: str = "MAIN",max_chars: int = 8000) -> Answer:
     """TODO: retrieve -> (rerank) -> generate -> validate -> maybe repair.
 
     B3: on validation failure, retry ONCE with a corrective message (or a

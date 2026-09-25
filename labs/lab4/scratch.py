@@ -1,42 +1,34 @@
-import json, sys
+import statistics, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-import labs.lab4.rag as rag                                      # noqa: E402
-from labs.lab3.search import load_corpus, load_questions         # noqa: E402
-from labs.lab4.evaluate import build_retriever, judge_correctness  # noqa: E402
+import labs.lab4.rag as rag                      # noqa: E402
+from labs.lab3.search import load_questions      # noqa: E402
+from labs.lab4.evaluate import build_retriever   # noqa: E402
 
-rows = json.loads((ROOT / "reports/lab4.json").read_text(encoding="utf-8"))
-qs = {q["id"]: q for q in load_questions(include_unanswerable=True)}
-corpus = load_corpus()
-retriever = build_retriever()
-
-# count generator calls per question, so truncation repairs show up
 calls = []
-_real = rag.chat
-rag.chat = lambda *a, **kw: (calls.append(1), _real(*a, **kw))[1]
+_real_chat = rag.chat
+def _spy(*args, **kwargs):
+    out = _real_chat(*args, **kwargs)
+    calls.append(out)
+    return out
+rag.chat = _spy
 
-wrong = [r for r in rows if r["correctness"] is not None and r["correctness"] < 2]
-print(f"{len(wrong)} wrong answers (correctness < 2)\n")
-for r in wrong:
-    q = qs[r["id"]]
-    rel = set(q["relevant_docs"])
-    top30 = [h.doc_id for h in retriever.search(q["question"], k=30)]
-    rank = next((i for i, d in enumerate(top30, 1) if d in rel), None)
-
+questions = load_questions(include_unanswerable=True)
+retriever = build_retriever()
+n_calls, cost, latency = [], [], []
+for q in questions:
     calls.clear()
-    g = rag.answer_with_gold_context(
-        q["question"], [corpus[d] for d in q["relevant_docs"] if d in corpus])
-    gold_score = judge_correctness(q["question"], g.text, q["gold_answer"]) if rel else None
+    rag.answer_question(q["question"], retriever)
+    n_calls.append(len(calls))
+    cost.append(sum(c["usage"]["cost_usd"] for c in calls))
+    latency.append(sum(c["usage"]["latency_ms"] for c in calls))
 
-    print("=" * 80)
-    print(f"{r['id']} | {q['kind']} | correctness {r['correctness']} | "
-          f"gold-context correctness {gold_score}")
-    print(f"first relevant doc rank (top 30): {rank}   | in context (top 5): "
-          f"{bool(rel & set(r['retrieved']))}   | gold-context calls: {len(calls)}")
-    print("QUESTION:", q["question"])
-    print("GOLD    :", q["gold_answer"])
-    print("ANSWER  :", r["answer"])
-    print("GOLD-CTX:", g.text)
+repaired = sum(1 for n in n_calls if n > 1)
+p95 = statistics.quantiles(latency, n=20)[18]
+print(f"repair rate          {repaired}/{len(questions)} = {repaired/len(questions):.3f}")
+print(f"cost per query       ${statistics.fmean(cost):.4f}   (generation only, excludes judges)")
+print(f"p95 end-to-end       {p95:,.0f} ms")
+print(f"p50 end-to-end       {statistics.median(latency):,.0f} ms")

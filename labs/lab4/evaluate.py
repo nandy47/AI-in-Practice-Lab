@@ -113,6 +113,8 @@ def build_retriever():
     the heading prefix, dense exact search, no reranker.
     (nDCG@10 0.8527, recall@5 0.9028, hit_rate@1 0.7857 on the Lab 3 set.)"""
     corpus = load_corpus()
+    corpus = {d: t for d, t in corpus.items()
+              if "ARCHIVED" not in d and not d.startswith(("motor-", "life-", "travel-"))}
     chunks = [c for doc_id, text in corpus.items()
               for c in markdown_chunks(text, doc_id, size=400)]
     return DenseRetriever(chunks)

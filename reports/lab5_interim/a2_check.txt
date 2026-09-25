@@ -1,0 +1,186 @@
+================================================================================
+Q19 | I am on Silver with a 5 lakh sum insured and took a room at Rs 15,000 per day. Will everything be paid?
+GOLD  : No. The Silver room-rent limit is 2% of 5,00,000 = Rs 10,000/day, so an eligibility ratio of 0.667 is applied by proportionate deduction to all room-linked charges (room, surgeon, anaesthetist, nursing, OT, investigations). Pharmacy and consumables are not reduced.
+ANSWER: No, not everything will be paid because the room-rent limit for a Silver plan with a ₹5,00,000 sum insured is 2%, or ₹10,000 per day [1][2]. Because the ₹15,000 per day room exceeds this limit, an eligibility ratio of 0.667 applies and proportionate deductions will be made across applicable hospitalisation charges [1][5].
+CONTEXT:
+[1] (source: claims-process)
+[Filing a Claim > Worked example — proportionate deduction]
+An insured on Silver with a ₹5,00,000 sum insured has a room-rent limit of
+2%, i.e. ₹10,000 per day. They occupy a room at ₹15,000 per day for 4 days.
+The eligibility ratio is 10,000 ÷ 15,000 = 0.667.
+
+[2] (source: plan-silver)
+[Aurora Silver — Plan Terms > Sub-limits]
+| Item | Silver limit |
+|---|---|
+| Room rent | 2% of sum insured per day |
+| ICU charges | 4% of sum insured per day |
+| Cataract surgery | ₹40,000 per eye |
+| Knee or hip replacement | ₹2,50,000 per joint |
+| Modern treatment (robotic surgery, oral chemotherapy, stem cell therapy) | 50% of sum insured |
+| Ambulance | ₹5,000 per hospitalisation |
+
+[3] (source: plan-bronze)
+[Aurora Bronze — Plan Terms > Sub-limits]
+On a ₹3,00,000 sum insured the room-rent limit is ₹3,000 per day, which is
+below the single-private-room tariff at most metropolitan tertiary hospitals.
+Proportionate deduction will therefore apply to most Bronze claims in those
+hospitals. Buyers should read the worked example in `claims-process` before
+choosing Bronze.
+
+[4] (source: plan-silver)
+[Aurora Silver — Plan Terms > Sum insured and premium band]
+Silver is available at sum insured of ₹5,00,000 or ₹10,00,000, on an individual
+or family-floater basis. Family floater covers self, spouse, and up to three
+dependent children under 25.
+
+[5] (source: claims-process)
+[Filing a Claim > Worked example — proportionate deduction]
+| Head | Billed | Payable |
+|---|---|---|
+| Room rent (4 days) | ₹60,000 | ₹40,000 |
+| Surgeon and anaesthetist | ₹1,20,000 | ₹80,000 |
+| Nursing and OT | ₹45,000 | ₹30,000 |
+| Investigations | ₹30,000 | ₹20,000 |
+| Pharmacy and consumables | ₹25,000 | ₹25,000 |
+| **Total** | **₹2,80,000** | **₹1,95,000** |
+
+================================================================================
+Q22 | My baby was born last week. What do I need to do and by when?
+GOLD  : The newborn is covered from day one within the maternity limit for the first 90 days. To continue cover beyond that, inform Aurora and add the child as a dependent within 90 days of birth, which is guaranteed-issue with no medical underwriting. After 90 days the child is treated as a fresh applicant.
+ANSWER: To continue cover beyond the first 90 days, you must inform Aurora within 90 days of birth to add the newborn to the policy as a dependent [1]. Adding the newborn within this 90-day window is guaranteed-issue with no medical underwriting, whereas after this period the child is treated as a fresh applicant [1].
+CONTEXT:
+[1] (source: maternity-benefits)
+[Maternity and Newborn Benefits > Newborn cover]
+To continue cover beyond 90 days, the newborn must be added to the policy as a
+dependent. Aurora must be informed within 90 days of birth. Adding the newborn
+is guaranteed-issue — no medical underwriting — if requested within that window;
+after it, the child is treated as a fresh applicant.
+
+[2] (source: maternity-benefits)
+[Maternity and Newborn Benefits > Newborn cover]
+A newborn is covered from day one of birth, within the maternity limit, for the
+first 90 days. Cover in this period includes treatment for congenital
+conditions detected after birth, up to ₹50,000 on Silver and up to the maternity
+limit on Gold and Platinum.
+
+[3] (source: claims-process)
+[Filing a Claim > Route 2 — Reimbursement (any hospital)]
+3. Submit the claim within **30 days of discharge**.
+4. Submit post-hospitalisation bills within **15 days** of the end of the
+   post-hospitalisation period applicable to your plan.
+
+[4] (source: maternity-benefits)
+[Maternity and Newborn Benefits]
+Maternity cover is available on Silver, Gold and Platinum. It is **not**
+available on Bronze at any sum insured.
+
+[5] (source: maternity-benefits)
+[Maternity and Newborn Benefits > What is included in the maternity limit]
+Pre-natal consultations and investigations in the 30 days before delivery;
+delivery charges including the obstetrician and anaesthetist; hospital room and
+nursing for the mother; and post-natal care for 60 days after delivery. All of
+these draw down the same per-delivery limit; they are not separate benefits.
+
+================================================================================
+Q28 | I want cashless at a hospital that turns out to be an excluded provider. What are my options?
+GOLD  : Cashless is not available at an excluded provider. The claim is payable on reimbursement only if the admission was a genuine emergency with no reachable alternative facility, and pre-approval is required.
+ANSWER: Cashless access is denied if the hospital is an excluded provider [2][4]. You may seek reimbursement instead [5], but the sources conflict on the eligibility conditions: Source [1] states that reimbursement is payable only if the admission was a genuine emergency and no alternative facility was reachable [1], whereas Source [3] states that reimbursement is available with pre-approval [3].
+CONTEXT:
+[1] (source: network-hospitals)
+[Network Hospitals and Cashless Access > Network tiers]
+The excluded provider list is published quarterly on the portal. A claim from an
+excluded provider is payable on reimbursement only if the admission was a
+genuine emergency and no alternative facility was reachable.
+
+[2] (source: network-hospitals)
+[Network Hospitals and Cashless Access > When cashless is denied]
+1. The information supplied is insufficient to establish medical necessity.
+2. The condition appears to fall within an unexpired waiting period.
+3. The policy is not in force on the date of admission.
+4. The hospital is an excluded provider.
+
+[3] (source: network-hospitals)
+[Network Hospitals and Cashless Access > Network tiers]
+| Excluded provider | Hospitals excluded for documented fraud or persistent over-billing | No — reimbursement only, and pre-approval required |
+
+[4] (source: network-hospitals)
+[Network Hospitals and Cashless Access > When cashless is denied]
+Cashless can be denied at pre-authorisation for four reasons, and denial of
+cashless is **not** a rejection of the claim:
+
+[5] (source: claims-process)
+[Filing a Claim > Route 2 — Reimbursement (any hospital)]
+Use this at non-network hospitals, or where cashless was denied.
+
+================================================================================
+Q29 | How many days do I have to respond to a query Aurora raises on my claim?
+GOLD  : 45 days from the date of the query, under the rules effective 1 April 2026. (The archived 2024 document says 30 days and must not be quoted for current policies.)
+ANSWER: For a reimbursement claim, you have 45 days from the date of the query to respond [2][5]. For an Aurora motor insurance claim, the deadline to respond to a query is 30 days from the date of the query [4].
+CONTEXT:
+[1] (source: claims-timelines)
+[Claim Notification and Submission Timelines > Aurora's response timelines]
+| Raising a query on a submitted claim | 7 working days from receipt |
+
+[2] (source: claims-timelines)
+[Claim Notification and Submission Timelines > Submission]
+If the response to a query is not received within 45 days, Aurora closes the
+claim. A closed claim can be reopened once, within 6 months, on written request.
+
+[3] (source: claims-process)
+[Filing a Claim > Settlement timelines]
+Aurora settles or rejects a complete reimbursement claim within **15 working
+days** of receiving the last required document. If Aurora raises a query, the
+clock restarts when you supply the queried document. Where Aurora exceeds the
+regulatory settlement timeline, interest is payable at the bank rate plus 2%.
+
+[4] (source: motor-claims-timelines)
+[Aurora Motor Insurance — Claim Timelines > Submission]
+| Document set | Deadline |
+|---|---|
+| Main claim with surveyor report | 21 days from the date of loss |
+| Repair estimate | With the claim |
+| Response to an Aurora query | 30 days from the date of the query |
+
+[5] (source: claims-timelines)
+[Claim Notification and Submission Timelines > Submission]
+| Document set | Deadline |
+|---|---|
+| Main reimbursement claim | 30 days from date of discharge |
+| Pre-hospitalisation bills | With the main claim |
+| Post-hospitalisation bills | 15 days after the end of the post-hospitalisation window |
+| Response to an Aurora query | 45 days from the date of the query |
+
+================================================================================
+Q32 | Which plans have no co-payment?
+GOLD  : Gold and Platinum have nil co-payment at all ages. Bronze applies 20% and Silver 10% where the eldest insured is above 60.
+ANSWER: Aurora Gold has no co-payment at any age [1]. Aurora Silver has no co-payment when the eldest insured member is below 60 years of age [2].
+CONTEXT:
+[1] (source: plan-gold)
+[Aurora Gold — Plan Terms > Co-payment]
+Nil at all ages.
+
+[2] (source: plan-silver)
+[Aurora Silver — Plan Terms > Co-payment]
+A 10% co-payment applies to every claim where the eldest insured member is
+above 60 years at the time of the policy commencement or renewal. There is no
+co-payment below age 60.
+
+[3] (source: senior-citizen-plan)
+[Aurora Senior Care — Plan for Ages 60 and Above > Co-payment]
+**Mandatory 20% co-payment on every claim**, at every age, with no option to
+buy it out. This is the single largest difference from the retail plans and
+the most common source of complaint.
+
+[4] (source: plans-overview)
+[Aurora Health Insurance — Plan Comparison > At a glance]
+| Co-payment | 20% above age 60 | 10% above age 60 | Nil | Nil |
+| Pre-hospitalisation cover | 30 days | 45 days | 60 days | 90 days |
+| Post-hospitalisation cover | 60 days | 90 days | 120 days | 180 days |
+| Restoration of sum insured | Not available | Once per year | Unlimited | Unlimited |
+
+[5] (source: plan-bronze)
+[Aurora Bronze — Plan Terms > Co-payment]
+20% co-payment on every claim where the eldest insured member is above 60 at
+commencement or renewal.
+
