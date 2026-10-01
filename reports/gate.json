@@ -1,13 +1,13 @@
 {
   "metrics": {
-    "correctness": 0.8375,
-    "faithfulness": 0.9333333333333333,
+    "correctness": 0.575,
+    "faithfulness": 1.0,
     "citation_validity": 1.0,
     "refusal_recall": 1.0,
-    "refusal_precision": 0.7142857142857143,
-    "hit_rate_at_5": 1.0,
-    "cost_per_query_usd": 0.002584983333333334,
-    "p95_latency_ms": 7649.303775400764
+    "refusal_precision": 0.23809523809523808,
+    "hit_rate_at_5": 0.875,
+    "cost_per_query_usd": 0.0018935000000000002,
+    "p95_latency_ms": 10366.769708198259
   },
   "rows": [
     {
@@ -18,19 +18,19 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00253125,
-      "latency_ms": 2697.303250002733
+      "cost_usd": 0.0007335,
+      "latency_ms": 2481.006417001481
     },
     {
       "id": "Q02",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
-      "hit_at_5": true,
-      "cost_usd": 0.00174675,
-      "latency_ms": 2219.3955830007326
+      "correctness": 0,
+      "hit_at_5": false,
+      "cost_usd": 0.00128025,
+      "latency_ms": 5628.878958996211
     },
     {
       "id": "Q03",
@@ -38,21 +38,21 @@
       "refused": false,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00125625,
-      "latency_ms": 3578.9059160015313
+      "cost_usd": 0.0014055,
+      "latency_ms": 2950.2866249968065
     },
     {
       "id": "Q04",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
-      "faithfulness": 0,
-      "correctness": 1,
+      "faithfulness": 1,
+      "correctness": 0,
       "hit_at_5": true,
-      "cost_usd": 0.004002,
-      "latency_ms": 4288.55054199812
+      "cost_usd": 0.00243075,
+      "latency_ms": 3965.5957919967477
     },
     {
       "id": "Q05",
@@ -60,10 +60,10 @@
       "refused": false,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00238875,
-      "latency_ms": 3163.468750000902
+      "cost_usd": 0.0014565,
+      "latency_ms": 5589.777875000436
     },
     {
       "id": "Q06",
@@ -73,8 +73,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.001404,
-      "latency_ms": 2615.2688750007655
+      "cost_usd": 0.0014835,
+      "latency_ms": 3499.4974169967463
     },
     {
       "id": "Q07",
@@ -84,8 +84,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00235875,
-      "latency_ms": 3173.7082500003453
+      "cost_usd": 0.00161325,
+      "latency_ms": 5338.488291999965
     },
     {
       "id": "Q08",
@@ -95,8 +95,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00135525,
-      "latency_ms": 2314.7766669972043
+      "cost_usd": 0.00184725,
+      "latency_ms": 3152.773124995292
     },
     {
       "id": "Q09",
@@ -106,8 +106,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00142575,
-      "latency_ms": 2104.1093329986325
+      "cost_usd": 0.00141375,
+      "latency_ms": 3063.8849169990863
     },
     {
       "id": "Q10",
@@ -117,8 +117,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.0025845,
-      "latency_ms": 3249.091458001203
+      "cost_usd": 0.00142875,
+      "latency_ms": 2657.3316669964697
     },
     {
       "id": "Q11",
@@ -128,8 +128,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00287175,
-      "latency_ms": 3828.950041999633
+      "cost_usd": 0.00143625,
+      "latency_ms": 3747.6071670025703
     },
     {
       "id": "Q12",
@@ -139,8 +139,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.001803,
-      "latency_ms": 2869.5502919981664
+      "cost_usd": 0.00163875,
+      "latency_ms": 2690.813666995382
     },
     {
       "id": "Q13",
@@ -150,8 +150,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00211275,
-      "latency_ms": 3064.22933399881
+      "cost_usd": 0.001308,
+      "latency_ms": 14834.930041994085
     },
     {
       "id": "Q14",
@@ -161,19 +161,19 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.001578,
-      "latency_ms": 2694.0024579998862
+      "cost_usd": 0.00097125,
+      "latency_ms": 2612.874250000459
     },
     {
       "id": "Q15",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
-      "hit_at_5": true,
-      "cost_usd": 0.0016725,
-      "latency_ms": 4150.006083000335
+      "correctness": 0,
+      "hit_at_5": false,
+      "cost_usd": 0.00169275,
+      "latency_ms": 9402.09804099868
     },
     {
       "id": "Q16",
@@ -183,8 +183,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00150075,
-      "latency_ms": 1953.5602079995442
+      "cost_usd": 0.000879,
+      "latency_ms": 3758.2013749997714
     },
     {
       "id": "Q17",
@@ -194,8 +194,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00174,
-      "latency_ms": 2373.1766659984714
+      "cost_usd": 0.0012375,
+      "latency_ms": 4932.975916999567
     },
     {
       "id": "Q18",
@@ -205,30 +205,30 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00221325,
-      "latency_ms": 4253.973541999585
+      "cost_usd": 0.001515,
+      "latency_ms": 4514.59716699901
     },
     {
       "id": "Q19",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.004146,
-      "latency_ms": 5110.135250000894
+      "cost_usd": 0.00459375,
+      "latency_ms": 5946.713916004228
     },
     {
       "id": "Q20",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
-      "faithfulness": 0,
+      "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.0033915,
-      "latency_ms": 4064.739292000013
+      "cost_usd": 0.0028395,
+      "latency_ms": 5397.939041002246
     },
     {
       "id": "Q21",
@@ -238,8 +238,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00287025,
-      "latency_ms": 5344.12862499812
+      "cost_usd": 0.001911,
+      "latency_ms": 3707.0135419999133
     },
     {
       "id": "Q22",
@@ -249,8 +249,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00442425,
-      "latency_ms": 4954.727124997589
+      "cost_usd": 0.002457,
+      "latency_ms": 5944.130500000028
     },
     {
       "id": "Q23",
@@ -260,8 +260,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00360075,
-      "latency_ms": 3778.5601670002507
+      "cost_usd": 0.0021765,
+      "latency_ms": 3378.209333997802
     },
     {
       "id": "Q24",
@@ -271,8 +271,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00203625,
-      "latency_ms": 2537.0384580019163
+      "cost_usd": 0.0015765,
+      "latency_ms": 3871.0175000014715
     },
     {
       "id": "Q25",
@@ -282,8 +282,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.005136,
-      "latency_ms": 4592.300749998685
+      "cost_usd": 0.00256425,
+      "latency_ms": 3773.676124998019
     },
     {
       "id": "Q26",
@@ -293,8 +293,8 @@
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00211275,
-      "latency_ms": 5026.889708999079
+      "cost_usd": 0.0016065,
+      "latency_ms": 4835.278083999583
     },
     {
       "id": "Q27",
@@ -302,10 +302,10 @@
       "refused": false,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.0034005,
-      "latency_ms": 10712.991083000816
+      "cost_usd": 0.004974,
+      "latency_ms": 10607.937624998158
     },
     {
       "id": "Q28",
@@ -313,21 +313,21 @@
       "refused": false,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.005556,
-      "latency_ms": 6662.924041000224
+      "cost_usd": 0.00287475,
+      "latency_ms": 6992.361249998794
     },
     {
       "id": "Q29",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 0,
       "hit_at_5": true,
-      "cost_usd": 0.002535,
-      "latency_ms": 3197.541541998362
+      "cost_usd": 0.000822,
+      "latency_ms": 2393.9559170030407
     },
     {
       "id": "Q30",
@@ -337,8 +337,8 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00251625,
-      "latency_ms": 2865.978416000871
+      "cost_usd": 0.00149925,
+      "latency_ms": 12446.370958001353
     },
     {
       "id": "Q31",
@@ -348,19 +348,19 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00208125,
-      "latency_ms": 2565.9395000002405
+      "cost_usd": 0.001536,
+      "latency_ms": 5630.339875002392
     },
     {
       "id": "Q32",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00344625,
-      "latency_ms": 4013.7514579982962
+      "cost_usd": 0.00278775,
+      "latency_ms": 5476.139457998215
     },
     {
       "id": "Q33",
@@ -370,30 +370,30 @@
       "faithfulness": 1,
       "correctness": 2,
       "hit_at_5": true,
-      "cost_usd": 0.00314475,
-      "latency_ms": 9414.480667001044
+      "cost_usd": 0.0014625,
+      "latency_ms": 5836.038582994661
     },
     {
       "id": "Q34",
       "unanswerable": false,
-      "refused": false,
-      "citations_valid": true,
-      "faithfulness": 1,
-      "correctness": 2,
-      "hit_at_5": true,
-      "cost_usd": 0.0036915,
-      "latency_ms": 7895.898709000903
-    },
-    {
-      "id": "Q35",
-      "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
       "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00199875,
-      "latency_ms": 4555.538625001645
+      "cost_usd": 0.00191025,
+      "latency_ms": 3331.4191659956123
+    },
+    {
+      "id": "Q35",
+      "unanswerable": false,
+      "refused": true,
+      "citations_valid": true,
+      "faithfulness": 1,
+      "correctness": 0,
+      "hit_at_5": false,
+      "cost_usd": 0.00171975,
+      "latency_ms": 4816.922915997566
     },
     {
       "id": "Q36",
@@ -403,8 +403,8 @@
       "faithfulness": 1,
       "correctness": null,
       "hit_at_5": false,
-      "cost_usd": 0.00204975,
-      "latency_ms": 2817.319208999834
+      "cost_usd": 0.00105375,
+      "latency_ms": 3460.3491250018124
     },
     {
       "id": "Q37",
@@ -414,8 +414,8 @@
       "faithfulness": 1,
       "correctness": null,
       "hit_at_5": false,
-      "cost_usd": 0.0018675,
-      "latency_ms": 2518.094333998306
+      "cost_usd": 0.0009915,
+      "latency_ms": 2265.368665997812
     },
     {
       "id": "Q38",
@@ -425,8 +425,8 @@
       "faithfulness": 1,
       "correctness": null,
       "hit_at_5": false,
-      "cost_usd": 0.0016125,
-      "latency_ms": 2339.0447919991857
+      "cost_usd": 0.00105225,
+      "latency_ms": 2247.3253330026637
     },
     {
       "id": "Q39",
@@ -436,8 +436,8 @@
       "faithfulness": 1,
       "correctness": null,
       "hit_at_5": false,
-      "cost_usd": 0.00205425,
-      "latency_ms": 4872.919625002396
+      "cost_usd": 0.000924,
+      "latency_ms": 3167.167249994236
     },
     {
       "id": "Q40",
@@ -446,64 +446,64 @@
       "citations_valid": true,
       "faithfulness": 1,
       "correctness": null,
-      "hit_at_5": true,
-      "cost_usd": 0.002757,
-      "latency_ms": 5021.89670900043
+      "hit_at_5": false,
+      "cost_usd": 0.002751,
+      "latency_ms": 4704.008000000613
     },
     {
       "id": "Q41",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00302475,
-      "latency_ms": 3994.569500002399
+      "cost_usd": 0.00320625,
+      "latency_ms": 5152.887417003512
     },
     {
       "id": "Q42",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
-      "faithfulness": 0,
-      "correctness": 2,
+      "faithfulness": 1,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.0028035,
-      "latency_ms": 4408.940665998671
+      "cost_usd": 0.0033645,
+      "latency_ms": 6050.100624997867
     },
     {
       "id": "Q43",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
-      "hit_at_5": true,
-      "cost_usd": 0.002421,
-      "latency_ms": 2990.0331670032756
+      "correctness": 0,
+      "hit_at_5": false,
+      "cost_usd": 0.0011775,
+      "latency_ms": 4524.032624998654
     },
     {
       "id": "Q44",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
-      "hit_at_5": true,
-      "cost_usd": 0.003204,
-      "latency_ms": 4361.409208999248
+      "correctness": 0,
+      "hit_at_5": false,
+      "cost_usd": 0.00111,
+      "latency_ms": 2597.781707998365
     },
     {
       "id": "Q45",
       "unanswerable": false,
-      "refused": false,
+      "refused": true,
       "citations_valid": true,
       "faithfulness": 1,
-      "correctness": 2,
+      "correctness": 1,
       "hit_at_5": true,
-      "cost_usd": 0.00189675,
-      "latency_ms": 2909.5962079991295
+      "cost_usd": 0.004494,
+      "latency_ms": 4866.43683299917
     }
   ]
 }
