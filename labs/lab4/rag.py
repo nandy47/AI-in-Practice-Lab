@@ -127,13 +127,13 @@ def answer_question(question: str, retriever: Retriever, *, k: int = 12,
                  f"{delimit_untrusted(raw_context)}\n\nQuestion: {question}\n\nAnswer with citations:"}]
     
     out = chat(messages, system=ANSWER_SYSTEM, tier=tier, temperature=0.0,
-               max_tokens=600, return_full=True)
+               max_tokens=1500, return_full=True)
     text = out["text"].strip()
     check = validate_answer(text, n_sources, out.get("finish_reason"))
 
     if not check["valid"]:
         if check["truncated"]:
-            retry, budget = messages, 1200          
+            retry, budget = messages, 3000          
         else:
             retry, budget = [*messages,
                              {"role": "assistant", "content": text},
